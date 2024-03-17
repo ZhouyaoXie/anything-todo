@@ -2,13 +2,14 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 from uuid import uuid4  # For generating unique IDs
+import time 
 
 # Page configuration
 st.set_page_config(
     page_title="Anything To-do",
     page_icon="🎡",
     layout="wide",
-    initial_sidebar_state="collapsed",
+    initial_sidebar_state="auto",
     menu_items={
         'About': "Anything To-do"
     }
@@ -51,11 +52,24 @@ def assign_probabilities(sorted_tasks):
     probabilities /= probabilities.sum()
     return probabilities
 
+def launch_task(sampled_task):
+    time.sleep(2)
+    msg = st.toast('Let\'s dive right into this: {}'.format(sampled_task))
+    time.sleep(2)
+    msg.toast('3...')
+    time.sleep(1.5)
+    msg.toast('2...')
+    time.sleep(1.5)
+    msg.toast('1...')
+    time.sleep(1.5)
+    msg.toast('Launch!', icon = "🥂")
+
 # Streamlit UI
 st.title('Anything To-do')
 
 st.info("""Overwhelmed by your to-do list and unable to get started with anything? 
-Add all your tasks, click "Do Anything", and a task will be picked for you. """)
+Add all your tasks, click "Do Anything", and a task will be picked for you. 
+Try to spend the next 5 minutes on that task. When you're done, feel free to continue if you want or come back here again. """, icon = "🍪")
 
 # Use session state to store tasks and form key
 if 'tasks' not in st.session_state:
@@ -79,7 +93,7 @@ if st.session_state.tasks:
     sorted_tasks = sort_tasks(st.session_state.tasks)
     probabilities = assign_probabilities(sorted_tasks)
 
-    st.write("Tasks in Priority Order:")
+    st.write("Tasks Added:")
     for task, prob in zip(sorted_tasks, probabilities):
         col1, col2 = st.columns([4, 1])
         with col1:
@@ -93,6 +107,7 @@ if st.session_state.tasks:
 
     if st.button("Do Anything"):
         sampled_task = np.random.choice([task['name'] for task in sorted_tasks], p=probabilities)
-        st.success(f"Sampled Task: {sampled_task}")
+        st.success(f"Anything is: {sampled_task}", icon = "🧋")
+        launch_task(sampled_task)
 else:
     st.write("No tasks added yet.")

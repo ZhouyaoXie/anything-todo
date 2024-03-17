@@ -8,7 +8,7 @@ st.set_page_config(
     page_title="Anything To-do",
     page_icon="🎡",
     layout="wide",
-    initial_sidebar_state="auto",  # "collapsed",
+    initial_sidebar_state="collapsed",
     menu_items={
         'About': "Anything To-do"
     }
@@ -52,7 +52,10 @@ def assign_probabilities(sorted_tasks):
     return probabilities
 
 # Streamlit UI
-st.title('Task Prioritizer')
+st.title('Anything To-do')
+
+st.info("""Overwhelmed by your to-do list and unable to get started with anything? 
+Add all your tasks, click "Do Anything", and a task will be picked for you. """)
 
 # Use session state to store tasks and form key
 if 'tasks' not in st.session_state:
@@ -61,9 +64,9 @@ if 'form_key' not in st.session_state:
     st.session_state.form_key = str(uuid4())
 
 with st.form(key=st.session_state.form_key):
-    task_name = st.text_input("Task Name", key="task_name")
-    important = st.checkbox("Important", key="important")
-    urgent = st.checkbox("Urgent", key="urgent")
+    task_name = st.text_input("What's on your mind right now?", key="task_name")
+    important = st.checkbox("Is it important?", key="important")
+    urgent = st.checkbox("Is it urgent?", key="urgent")
     submit_button = st.form_submit_button("Add Task")
     
     if submit_button and task_name:
@@ -88,7 +91,7 @@ if st.session_state.tasks:
                 # st.session_state.form_key = str(uuid4())
                 st.experimental_rerun()
 
-    if st.button("Sample Task"):
+    if st.button("Do Anything"):
         sampled_task = np.random.choice([task['name'] for task in sorted_tasks], p=probabilities)
         st.success(f"Sampled Task: {sampled_task}")
 else:

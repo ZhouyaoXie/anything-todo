@@ -75,7 +75,7 @@ if st.session_state.tasks:
     sorted_combined = sorted(combined, key=lambda x: x[1], reverse=True)
 
     st.write("Tasks Added:")
-    for task, prob in zip(*sorted_combined):
+    for task, prob in sorted_combined:
         col1, col2 = st.columns([4, 1])
         with col1:
             st.write(f"{task['name']} - Important: {task['important']}, Urgent: {task['urgent']}, Probability: {prob:.2f}")
@@ -87,7 +87,7 @@ if st.session_state.tasks:
                 st.experimental_rerun()
 
     if st.button("Do Anything"):
-        sampled_task = np.random.choice([task['name'] for task in sorted_tasks], p=probabilities)
+        sampled_task = np.random.choice([task['name'] for task, _ in sorted_combined], p=probabilities)
         st.success(f"The next 5 minutes will be dedicated to: {sampled_task}", icon = "🧋")
         launch_task(sampled_task)
 else:

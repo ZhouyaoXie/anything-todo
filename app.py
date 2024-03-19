@@ -3,6 +3,8 @@ import pandas as pd
 import numpy as np
 from uuid import uuid4  # For generating unique IDs
 import time 
+from backend import assign_probabilities
+
 
 # Page configuration
 st.set_page_config(
@@ -28,29 +30,6 @@ st.sidebar.markdown("""
 > [project repo](https://github.com/ZhouyaoXie/anything-todo)  
 > [zhouyao's website](https://xiezhouyao.site)  
 > [zhouyao's blog](https://zhouyao.substack.com/)  """)
-
-# Function to sort tasks based on priority
-def sort_tasks(tasks):
-    def sort_key(task):
-        important, urgent = task['important'], task['urgent']
-        if important and urgent: return 1
-        elif important: return 2
-        elif urgent: return 3
-        else: return 4
-    return sorted(tasks, key=sort_key)
-
-# Function to assign equal probabilities to tasks within the same priority group
-def assign_probabilities(sorted_tasks):
-    groups = pd.DataFrame(sorted_tasks).groupby(['important', 'urgent']).size().to_dict()
-    probabilities = []
-    for task in sorted_tasks:
-        group_size = groups[(task['important'], task['urgent'])]
-        # Evenly distribute probability within the group
-        probabilities.append(1 / group_size / len(groups))
-    # Normalize to ensure the sum of probabilities is 1
-    probabilities = np.array(probabilities)
-    probabilities /= probabilities.sum()
-    return probabilities
 
 def launch_task(sampled_task):
     time.sleep(2)
@@ -90,11 +69,13 @@ with st.form(key=st.session_state.form_key):
         st.experimental_rerun()
 
 if st.session_state.tasks:
-    sorted_tasks = sort_tasks(st.session_state.tasks)
-    probabilities = assign_probabilities(sorted_tasks)
+    probabilities = assign_probabilities(st.session_state.tasks)
+    combined = list(zip(st.session_state.tasks, probabilities))
+    # Sort the combined list by probabilities in descending order
+    sorted_combined = sorted(combined, key=lambda x: x[1], reverse=True)
 
     st.write("Tasks Added:")
-    for task, prob in zip(sorted_tasks, probabilities):
+    for task, prob in zip(*sorted_combined):
         col1, col2 = st.columns([4, 1])
         with col1:
             st.write(f"{task['name']} - Important: {task['important']}, Urgent: {task['urgent']}, Probability: {prob:.2f}")
@@ -107,7 +88,7 @@ if st.session_state.tasks:
 
     if st.button("Do Anything"):
         sampled_task = np.random.choice([task['name'] for task in sorted_tasks], p=probabilities)
-        st.success(f"Anything is: {sampled_task}", icon = "🧋")
+        st.success(f"The next 5 minutes will be dedicated to: {sampled_task}", icon = "🧋")
         launch_task(sampled_task)
 else:
     st.write("No tasks added yet.")

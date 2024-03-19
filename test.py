@@ -1,4 +1,4 @@
-from backend import assign_probabilities, sort_tasks
+from backend import assign_probabilities
 import numpy as np 
 
 test_tasks = [
@@ -12,3 +12,11 @@ probabilities = assign_probabilities(test_tasks)
 assert np.allclose(probabilities, np.array([0.33898305, 0.33898305, 0.25423729, 0.06779661]))
 print("Passed probability test.")
 
+combined = list(zip(test_tasks, probabilities))
+# Sort the combined list by probabilities in descending order
+sorted_combined = sorted(combined, key=lambda x: x[1], reverse=True)
+for i in range(len(sorted_combined)-1):
+    _, prob = sorted_combined[i]
+    _, next_prob = sorted_combined[i+1]
+    assert prob >= next_prob 
+print("Passed sorting test.")

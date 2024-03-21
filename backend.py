@@ -15,6 +15,6 @@ def assign_probabilities(tasks):
         else: 
             probabilities.append(2)
     # Normalize to ensure the sum of probabilities is 1
-    probabilities = np.array(probabilities)
+    probabilities = np.array(probabilities, dtype=float)
     probabilities /= probabilities.sum()
     return probabilities
